@@ -39,3 +39,5 @@
   Поднимает общую инфраструктуру: PostgreSQL, Redis и внешнюю сеть `notes-backend`.
 - `deploy/server/docker-compose.yml`
   Поднимает только приложение сервера и подключает его к уже существующей внешней сети `notes-backend`.
+- `deploy/full/docker-compose.yml`
+  Поднимает PostgreSQL, Redis и приложение сервера одним compose-стеком.

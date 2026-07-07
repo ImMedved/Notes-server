@@ -2,6 +2,8 @@
 
 Standalone backend project for notes and timers.
 
+Notes support `pinned` and `archived` states. Archived notes stay in the snapshot and are sorted after active notes.
+
 ## Contents
 
 - Java 17 HTTP server
@@ -17,6 +19,14 @@ mvn -q -DskipTests package
 ```
 
 ## Run with Docker
+
+All-in-one stack:
+
+```powershell
+cd deploy\full
+Copy-Item .env.example .env
+docker compose up -d --build
+```
 
 Infra:
 

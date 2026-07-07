@@ -8,6 +8,7 @@
   "title": "Sprint ideas",
   "content": "# Idea\n\n- add android client",
   "pinned": true,
+  "archived": false,
   "createdAt": 1750435200000,
   "updatedAt": 1750438800000
 }
@@ -19,6 +20,7 @@
 - `title` — короткий заголовок.
 - `content` — Markdown-текст.
 - `pinned` — закрепление вверху списка.
+- `archived` — признак того, что заметка находится в архиве.
 - `createdAt` — Unix epoch в миллисекундах.
 - `updatedAt` — Unix epoch в миллисекундах.
 
@@ -61,7 +63,7 @@
 
 - `revision` — глобальная монотонно растущая ревизия состояния.
 - `serverTimeEpochMillis` — текущее серверное время.
-- `notes` — полный список заметок.
+- `notes` — полный список заметок; сначала идут неархивированные, затем архивные.
 - `timers` — полный список таймеров.
 
 ## Ошибка API

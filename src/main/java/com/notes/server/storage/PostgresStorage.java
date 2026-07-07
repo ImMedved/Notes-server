@@ -43,9 +43,14 @@ public class PostgresStorage implements AutoCloseable {
                         title TEXT NOT NULL,
                         content TEXT NOT NULL,
                         pinned BOOLEAN NOT NULL,
+                        archived BOOLEAN NOT NULL DEFAULT FALSE,
                         created_at BIGINT NOT NULL,
                         updated_at BIGINT NOT NULL
                     )
+                    """);
+            statement.execute("""
+                    ALTER TABLE notes
+                    ADD COLUMN IF NOT EXISTS archived BOOLEAN NOT NULL DEFAULT FALSE
                     """);
             statement.execute("""
                     CREATE TABLE IF NOT EXISTS timers (
@@ -77,7 +82,7 @@ public class PostgresStorage implements AutoCloseable {
     public Note getNote(String id) throws SQLException {
         try (Connection connection = openConnection();
              PreparedStatement statement = connection.prepareStatement("""
-                     SELECT id, title, content, pinned, created_at, updated_at
+                     SELECT id, title, content, pinned, archived, created_at, updated_at
                      FROM notes
                      WHERE id = ?
                      """)) {
@@ -122,20 +127,22 @@ public class PostgresStorage implements AutoCloseable {
         try (Connection connection = openConnection()) {
             connection.setAutoCommit(false);
             try (PreparedStatement statement = connection.prepareStatement("""
-                    INSERT INTO notes (id, title, content, pinned, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    INSERT INTO notes (id, title, content, pinned, archived, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT (id) DO UPDATE SET
                       title = EXCLUDED.title,
                       content = EXCLUDED.content,
                       pinned = EXCLUDED.pinned,
+                      archived = EXCLUDED.archived,
                       updated_at = EXCLUDED.updated_at
                     """)) {
                 statement.setString(1, note.getId());
                 statement.setString(2, blankToDefault(note.getTitle(), "Без названия"));
                 statement.setString(3, blankToDefault(note.getContent(), ""));
                 statement.setBoolean(4, note.isPinned());
-                statement.setLong(5, note.getCreatedAt());
-                statement.setLong(6, note.getUpdatedAt());
+                statement.setBoolean(5, note.isArchived());
+                statement.setLong(6, note.getCreatedAt());
+                statement.setLong(7, note.getUpdatedAt());
                 statement.executeUpdate();
             }
             incrementRevision(connection);
@@ -215,16 +222,17 @@ public class PostgresStorage implements AutoCloseable {
     private List<Note> listNotes(Connection connection) throws SQLException {
         List<Note> notes = new ArrayList<>();
         try (PreparedStatement statement = connection.prepareStatement("""
-                SELECT id, title, content, pinned, created_at, updated_at
+                SELECT id, title, content, pinned, archived, created_at, updated_at
                 FROM notes
-                ORDER BY pinned DESC, updated_at DESC
+                ORDER BY archived ASC, pinned DESC, updated_at DESC
                 """);
              ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 notes.add(mapNote(resultSet));
             }
         }
-        notes.sort(Comparator.comparing(Note::isPinned).reversed()
+        notes.sort(Comparator.comparing(Note::isArchived)
+                .thenComparing(Note::isPinned, Comparator.reverseOrder())
                 .thenComparing(Note::getUpdatedAt, Comparator.reverseOrder()));
         return notes;
     }
@@ -275,6 +283,7 @@ public class PostgresStorage implements AutoCloseable {
         note.setTitle(resultSet.getString("title"));
         note.setContent(resultSet.getString("content"));
         note.setPinned(resultSet.getBoolean("pinned"));
+        note.setArchived(resultSet.getBoolean("archived"));
         note.setCreatedAt(resultSet.getLong("created_at"));
         note.setUpdatedAt(resultSet.getLong("updated_at"));
         return note;

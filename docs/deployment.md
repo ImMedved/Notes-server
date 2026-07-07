@@ -1,6 +1,27 @@
 # Развертывание
 
-## 1. Инфраструктура
+## 1. Полный стек одним compose
+
+Файлы:
+
+- [deploy/full/docker-compose.yml](D:/MyProjects/IdeaProjects/Notes/server/deploy/full/docker-compose.yml)
+- [deploy/full/.env.example](D:/MyProjects/IdeaProjects/Notes/server/deploy/full/.env.example)
+
+Запуск:
+
+```bash
+cd deploy/full
+cp .env.example .env
+docker compose up -d --build
+```
+
+Это поднимет:
+
+- PostgreSQL
+- Redis
+- сервер приложения
+
+## 2. Инфраструктура отдельно
 
 Infra compose живет отдельно и поднимает общие сервисы.
 
@@ -23,7 +44,7 @@ docker compose up -d
 - Redis
 - внешнюю docker-сеть `notes-backend`
 
-## 2. Сервер приложения
+## 3. Сервер приложения
 
 Файлы:
 
@@ -39,7 +60,7 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-## 3. Tailscale
+## 4. Tailscale
 
 На сервере:
 
@@ -53,7 +74,7 @@ tailscale ip -4
 - `http://<tailscale-ip>:8080`
 - или `http://<magicdns-name>:8080`
 
-## 4. Windows app-image
+## 5. Windows app-image
 
 Сборка:
 
@@ -75,7 +96,7 @@ powershell -ExecutionPolicy Bypass -File .\build-exe.ps1
 4. На вкладке `Sync` оставьте `http://127.0.0.1:8080`.
 5. Если в `deploy/server/.env` задан `NOTES_API_KEY`, введите его в поле `API key`.
 
-## 5. Резервное копирование
+## 6. Резервное копирование
 
 Минимум, что стоит бэкапить:
 
