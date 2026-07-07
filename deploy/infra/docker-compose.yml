@@ -1,0 +1,36 @@
+name: notes_server_infra
+
+services:
+  notes-postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - notes-postgres-data:/var/lib/postgresql/data
+    networks:
+      - notes-backend
+
+  notes-redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: >
+      sh -c "redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}"
+    ports:
+      - "6379:6379"
+    volumes:
+      - notes-redis-data:/data
+    networks:
+      - notes-backend
+
+volumes:
+  notes-postgres-data:
+  notes-redis-data:
+
+networks:
+  notes-backend:
+    name: notes-server-backend

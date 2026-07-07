@@ -1,0 +1,23 @@
+name: notes_server_app
+
+services:
+  notes-server:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NOTES_PORT: ${NOTES_PORT}
+      NOTES_DB_URL: ${NOTES_DB_URL}
+      NOTES_DB_USER: ${NOTES_DB_USER}
+      NOTES_DB_PASSWORD: ${NOTES_DB_PASSWORD}
+      NOTES_API_KEY: ${NOTES_API_KEY}
+    ports:
+      - "${NOTES_PORT}:8080"
+    networks:
+      - notes-backend
+
+networks:
+  notes-backend:
+    external: true
+    name: notes-server-backend

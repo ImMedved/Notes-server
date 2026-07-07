@@ -1,0 +1,5 @@
+target/
+.idea/
+*.iml
+deploy/infra/.env
+deploy/server/.env
