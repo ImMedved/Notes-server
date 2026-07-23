@@ -1,23 +1,23 @@
 # HTTP API
 
-Базовый префикс: `/api/v1`
+Base prefix: `/api/v1`
 
-Аутентификация:
+Authentication:
 
-- если на сервере задан `NOTES_API_KEY`, клиент обязан передавать заголовок `X-Notes-Api-Key`
-- дополнительные заголовки для телеметрии и отладки:
+- if `NOTES_API_KEY` is set on the server, the client must send the `X-Notes-Api-Key` header
+- additional headers for telemetry and debugging:
   - `X-Client-Id`
   - `X-Client-Platform`
   - `X-Client-Version`
 
-Все тела и ответы — `application/json`.
+All request and response bodies are `application/json`.
 
 ## GET /health
 
-Назначение:
-Проверка доступности сервера.
+Purpose:
+Check server availability.
 
-Ответ `200`:
+`200` response:
 
 ```json
 {
@@ -29,10 +29,10 @@
 
 ## GET /api/v1/snapshot
 
-Назначение:
-Получить полное авторитетное состояние сервера.
+Purpose:
+Fetch the full authoritative server state.
 
-Ответ `200`:
+`200` response:
 
 ```json
 {
@@ -55,10 +55,10 @@
 
 ## PUT /api/v1/notes/{id}
 
-Назначение:
-Создать или обновить заметку. `id` в path является источником истины.
+Purpose:
+Create or update a note. The `id` in the path is the source of truth.
 
-Тело:
+Body:
 
 ```json
 {
@@ -72,20 +72,20 @@
 }
 ```
 
-Ответ `200`:
-Объект заметки в актуальном серверном виде.
+`200` response:
+The note object in its current server-side form.
 
-Поле `archived` управляет архивным состоянием заметки:
+The `archived` field controls the note's archive state:
 
-- `false` — обычная активная заметка.
-- `true` — заметка находится в архиве.
+- `false` - a regular active note.
+- `true` - the note is archived.
 
 ## DELETE /api/v1/notes/{id}
 
-Назначение:
-Удалить заметку.
+Purpose:
+Delete a note.
 
-Ответ `200`:
+`200` response:
 
 ```json
 {
@@ -96,10 +96,10 @@
 
 ## PUT /api/v1/timers/{id}
 
-Назначение:
-Создать или обновить таймер/секундомер.
+Purpose:
+Create or update a timer/stopwatch.
 
-Тело:
+Body:
 
 ```json
 {
@@ -115,15 +115,15 @@
 }
 ```
 
-Ответ `200`:
-Объект таймера в актуальном серверном виде.
+`200` response:
+The timer object in its current server-side form.
 
 ## DELETE /api/v1/timers/{id}
 
-Назначение:
-Удалить таймер.
+Purpose:
+Delete a timer.
 
-Ответ `200`:
+`200` response:
 
 ```json
 {
@@ -132,9 +132,9 @@
 }
 ```
 
-## Поведение клиентов
+## Client Behavior
 
-- После любого `PUT` или `DELETE` клиенту рекомендуется снова вызвать `GET /api/v1/snapshot`.
-- В `snapshot.notes` сервер возвращает сначала неархивированные заметки, затем архивные; внутри группы действует сортировка по `pinned`, затем по `updatedAt` по убыванию.
-- `revision` нужен клиентам для понимания, изменилось ли общее состояние.
-- Сервер не навязывает офлайн-очередь. Если Android-клиенту позже понадобится офлайн-режим, очередь операций должна жить на стороне клиента.
+- After any `PUT` or `DELETE`, the client should call `GET /api/v1/snapshot` again.
+- In `snapshot.notes`, the server returns non-archived notes first and archived notes after them; inside each group, notes are sorted by `pinned` first, then by `updatedAt` descending.
+- Clients use `revision` to determine whether the shared state has changed.
+- The server does not enforce an offline queue. If the Android client needs offline mode later, the operation queue should live on the client side.

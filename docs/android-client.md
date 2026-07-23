@@ -1,40 +1,38 @@
-# Подсказки для Android-клиента
+# Android Client Notes
 
-Текущий сервер уже пригоден для Android-клиента, если соблюдать эти правила.
+## Basic Flow
 
-## Базовый сценарий
+1. On startup, call `GET /api/v1/snapshot`.
+2. Keep a local snapshot cache in memory or SQLite.
+3. After any change, send a `PUT` or `DELETE` request.
+4. After a successful mutation, fetch `snapshot` again.
 
-1. При старте выполнить `GET /api/v1/snapshot`.
-2. Держать локальный кэш snapshot в памяти или SQLite.
-3. После любого изменения отправлять `PUT` или `DELETE`.
-4. После успешной мутации снова тянуть `snapshot`.
+## What You Do Not Need to Reinvent
 
-## Что не нужно изобретать заново
+- The note format is already fixed.
+- The timer format is already fixed.
+- Time fields use Unix epoch milliseconds.
+- The `X-Notes-Api-Key` header is already reserved.
+- `X-Client-Id`, `X-Client-Platform`, and `X-Client-Version` are already documented.
 
-- Формат заметки уже зафиксирован.
-- Формат таймера уже зафиксирован.
-- Поля времени идут в Unix epoch milliseconds.
-- Заголовок `X-Notes-Api-Key` уже зарезервирован.
-- `X-Client-Id`, `X-Client-Platform`, `X-Client-Version` уже описаны.
-
-## Рекомендуемая локальная архитектура Android
+## Recommended Local Android Architecture
 
 - `Repository`
-  Работает с HTTP API и локальным кэшем.
+  Works with the HTTP API and the local cache.
 - `SQLite/Room`
-  Хранит последний snapshot и черновики, если позже нужен offline-first.
+  Stores the latest snapshot and drafts if offline-first support is needed later.
 - `SyncWorker`
-  Выполняет периодический pull или push через WorkManager.
+  Performs periodic pull or push work through WorkManager.
 
-## Важные ограничения текущего контракта
+## Important Limits of the Current Contract
 
-- Сервер сейчас отдает полный snapshot, а не delta sync.
-- Конфликты "два клиента редактируют одну заметку одновременно" решаются по `last write wins`.
-- Сервер не хранит историю изменений.
+- The server currently returns a full snapshot, not delta sync.
+- Conflicts where two clients edit the same note at the same time are resolved with `last write wins`.
+- The server does not store change history.
 
-## Что можно добавить позже без поломки клиентов
+## What Can Be Added Later Without Breaking Clients
 
 - `GET /api/v1/changes?sinceRevision=...`
-- отдельные endpoint'ы аутентификации
-- push-события через Redis/pubsub или websocket gateway
-- device registration и аудит клиентских операций
+- separate authentication endpoints
+- push events through Redis/pubsub or a websocket gateway
+- device registration and client operation auditing

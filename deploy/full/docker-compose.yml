@@ -15,18 +15,6 @@ services:
     networks:
       - notes-backend
 
-  notes-redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    command: >
-      sh -c "redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}"
-    ports:
-      - "6379:6379"
-    volumes:
-      - notes-redis-data:/data
-    networks:
-      - notes-backend
-
   notes-server:
     build:
       context: ../..
@@ -34,7 +22,6 @@ services:
     restart: unless-stopped
     depends_on:
       - notes-postgres
-      - notes-redis
     environment:
       NOTES_PORT: ${NOTES_PORT}
       NOTES_DB_URL: ${NOTES_DB_URL}
@@ -48,7 +35,6 @@ services:
 
 volumes:
   notes-postgres-data:
-  notes-redis-data:
 
 networks:
   notes-backend:

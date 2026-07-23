@@ -1,36 +1,32 @@
-# Развертывание
+# Deployment
 
-## 1. Полный стек одним compose
+### With One Compose File
 
-Файлы:
+Files:
 
-- [deploy/full/docker-compose.yml](D:/MyProjects/IdeaProjects/Notes/server/deploy/full/docker-compose.yml)
-- [deploy/full/.env.example](D:/MyProjects/IdeaProjects/Notes/server/deploy/full/.env.example)
+- [deploy/full/docker-compose.yml](../deploy/full/docker-compose.yml)
+- [deploy/full/.env.example](../deploy/full/.env)
 
-Запуск:
+Start it:
 
 ```bash
 cd deploy/full
-cp .env.example .env
 docker compose up -d --build
 ```
 
-Это поднимет:
+This starts:
 
 - PostgreSQL
-- Redis
-- сервер приложения
+- the application server
 
-## 2. Инфраструктура отдельно
+### Infrastructure Separately
 
-Infra compose живет отдельно и поднимает общие сервисы.
+The infra compose stack is separate and starts the shared services.
 
-Файлы:
+Files:
 
-- [deploy/infra/docker-compose.yml](D:/MyProjects/IdeaProjects/Notes/deploy/infra/docker-compose.yml)
-- [deploy/infra/.env.example](D:/MyProjects/IdeaProjects/Notes/deploy/infra/.env.example)
-
-Запуск на Arch:
+- [deploy/infra/docker-compose.yml](../deploy/infra/docker-compose.yml)
+- [deploy/infra/.env.example](../deploy/infra/.env.example)
 
 ```bash
 cd deploy/infra
@@ -38,21 +34,18 @@ cp .env.example .env
 docker compose up -d
 ```
 
-Это создаст:
+This creates:
 
 - PostgreSQL
-- Redis
-- внешнюю docker-сеть `notes-backend`
+- the external Docker network `notes-backend`
 
-## 3. Сервер приложения
+### Application Server
 
-Файлы:
+Files:
 
-- [deploy/server/docker-compose.yml](D:/MyProjects/IdeaProjects/Notes/deploy/server/docker-compose.yml)
-- [deploy/server/.env.example](D:/MyProjects/IdeaProjects/Notes/deploy/server/.env.example)
-- [server/Dockerfile](D:/MyProjects/IdeaProjects/Notes/server/Dockerfile)
-
-Запуск:
+- [deploy/server/docker-compose.yml](../deploy/server/docker-compose.yml)
+- [deploy/server/.env.example](../deploy/server/.env.example)
+- [server/Dockerfile](../Dockerfile)
 
 ```bash
 cd deploy/server
@@ -60,47 +53,47 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-## 4. Tailscale
+### Tailscale
 
-На сервере:
+On the server:
 
 ```bash
 sudo tailscale up
 tailscale ip -4
 ```
 
-В Windows-клиенте затем укажите:
+Then configure the Windows client with:
 
 - `http://<tailscale-ip>:8080`
-- или `http://<magicdns-name>:8080`
+- or `http://<magicdns-name>:8080`
 
-## 5. Windows app-image
+### Windows App Image
 
-Сборка:
+Clone it:
+
+```powershell
+git clone https://github.com/ImMedved/Notes-desktop
+```
+
+Build it:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build-exe.ps1
 ```
 
-Готовый exe:
+## Local Smoke Test on localhost
 
-- [NotesWidgetClient.exe](D:/MyProjects/IdeaProjects/Notes/dist/NotesWidgetClient/NotesWidgetClient.exe)
+If you want to quickly check everything on one PC without Tailscale:
 
-## Локальный smoke-test на localhost
+1. Start the infra compose stack.
+2. Start the server compose stack with `NOTES_PORT=8080`.
+3. Run `NotesWidgetClient.exe`.
+4. On the `Sync` tab, keep `http://127.0.0.1:8080`.
+5. If `NOTES_API_KEY` is set in `deploy/server/.env`, enter it in the `API key` field.
 
-Если вы хотите быстро проверить всё на одном ПК без Tailscale:
+## 6. Backups
 
-1. Поднимите infra compose.
-2. Поднимите server compose с `NOTES_PORT=8080`.
-3. Запустите `NotesWidgetClient.exe`.
-4. На вкладке `Sync` оставьте `http://127.0.0.1:8080`.
-5. Если в `deploy/server/.env` задан `NOTES_API_KEY`, введите его в поле `API key`.
+At minimum, back up:
 
-## 6. Резервное копирование
-
-Минимум, что стоит бэкапить:
-
-- PostgreSQL volume из infra compose
-- `.env` файла сервера
-
-Redis в текущей версии не является критичным для данных заметок и таймеров.
+- the PostgreSQL volume from the infra compose stack
+- the server `.env` file

@@ -1,43 +1,43 @@
-# Архитектура
+# Architecture
 
-## Разделение
+## Separation
 
-Проект намеренно разделен на независимые части:
+The project is intentionally split into independent parts:
 
 - `shared`
-  Содержит общие DTO, enum'ы, JSON-мапперы и формат snapshot.
+  Contains shared DTOs, enums, JSON mappers, and the snapshot format.
 - `server`
-  Авторитетный backend. Хранит заметки и таймеры, выдает snapshot, принимает изменения по HTTP API.
+  The authoritative backend. It stores notes and timers, serves snapshots, and accepts changes through the HTTP API.
 - `windows-client`
-  Виджет для Windows 11. Не является источником истины по данным, а только редактирует и показывает состояние сервера.
+  A Windows 11 widget. It is not the source of truth for data; it only edits and displays server state.
 
-## Поток данных
+## Data Flow
 
-1. Windows-клиент получает `snapshot` с сервера.
-2. Пользователь меняет заметку или таймер.
-3. Клиент отправляет `PUT` или `DELETE` запрос на сервер.
-4. Сервер сохраняет изменение в PostgreSQL и увеличивает `revision`.
-5. Клиент заново запрашивает `snapshot` и обновляет UI.
+1. The Windows client fetches a `snapshot` from the server.
+2. The user changes a note or timer.
+3. The client sends a `PUT` or `DELETE` request to the server.
+4. The server stores the change in PostgreSQL and increments `revision`.
+5. The client requests `snapshot` again and refreshes the UI.
 
-## Почему так
+## Rationale
 
-- Один сервер истины упрощает Android-клиент.
-- Tailscale решает сетевую связанность без открытого публичного ingress.
-- PostgreSQL удобнее для долговременного хранения, резервного копирования и миграций.
-- Redis оставлен в отдельной infra compose как базовый задел под фоновые задачи, события или будущие push-механизмы.
+- A single source-of-truth server makes the Android client simpler.
+- Tailscale solves network connectivity without exposing a public ingress.
+- PostgreSQL is convenient for long-term storage, backups, and migrations.
+- Redis remains in the separate infra compose stack as a foundation for background jobs, events, or future push mechanisms.
 
-## Сетевой доступ
+## Network Access
 
-Ожидается, что клиенты идут к серверу:
+Clients are expected to connect to the server:
 
-- по Tailscale IP, например `http://100.x.y.z:8080`
-- или по MagicDNS имени, например `http://notes-server.tailnet-name.ts.net:8080`
+- by Tailscale IP, for example `http://100.x.y.z:8080`
+- or by MagicDNS name, for example `http://notes-server.tailnet-name.ts.net:8080`
 
-## Compose-слои
+## Compose Layers
 
 - `deploy/infra/docker-compose.yml`
-  Поднимает общую инфраструктуру: PostgreSQL, Redis и внешнюю сеть `notes-backend`.
+  Starts the shared infrastructure: PostgreSQL, and the external network `notes-backend`.
 - `deploy/server/docker-compose.yml`
-  Поднимает только приложение сервера и подключает его к уже существующей внешней сети `notes-backend`.
+  Starts only the application server and connects it to the existing external network `notes-backend`.
 - `deploy/full/docker-compose.yml`
-  Поднимает PostgreSQL, Redis и приложение сервера одним compose-стеком.
+  Starts PostgreSQL, and the application server in one compose stack.

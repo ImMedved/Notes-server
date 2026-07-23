@@ -1,4 +1,4 @@
-# Модели данных
+# Data Models
 
 ## Note
 
@@ -14,15 +14,15 @@
 }
 ```
 
-Поля:
+Fields:
 
-- `id` — UUID строки, создается клиентом.
-- `title` — короткий заголовок.
-- `content` — Markdown-текст.
-- `pinned` — закрепление вверху списка.
-- `archived` — признак того, что заметка находится в архиве.
-- `createdAt` — Unix epoch в миллисекундах.
-- `updatedAt` — Unix epoch в миллисекундах.
+- `id` - UUID string created by the client.
+- `title` - a short title.
+- `content` - Markdown text.
+- `pinned` - whether the note is pinned to the top of the list.
+- `archived` - whether the note is archived.
+- `createdAt` - Unix epoch in milliseconds.
+- `updatedAt` - Unix epoch in milliseconds.
 
 ## TimerEntry
 
@@ -40,13 +40,13 @@
 }
 ```
 
-Поля:
+Fields:
 
-- `mode` — `COUNTDOWN` или `STOPWATCH`.
-- `durationMillis` — общая длина для countdown; для stopwatch можно хранить `31536000000`.
-- `startedAt` — момент текущего старта, если таймер запущен.
-- `accumulatedMillis` — накопленное время до текущего запуска.
-- `running` — активен ли таймер прямо сейчас.
+- `mode` - `COUNTDOWN` or `STOPWATCH`.
+- `durationMillis` - the total countdown duration; for a stopwatch, `31536000000` can be stored.
+- `startedAt` - the current start time if the timer is running.
+- `accumulatedMillis` - accumulated time before the current run.
+- `running` - whether the timer is currently active.
 
 ## ServerSnapshot
 
@@ -59,14 +59,14 @@
 }
 ```
 
-Поля:
+Fields:
 
-- `revision` — глобальная монотонно растущая ревизия состояния.
-- `serverTimeEpochMillis` — текущее серверное время.
-- `notes` — полный список заметок; сначала идут неархивированные, затем архивные.
-- `timers` — полный список таймеров.
+- `revision` - a global monotonically increasing state revision.
+- `serverTimeEpochMillis` - the current server time.
+- `notes` - the full list of notes; non-archived notes come first, followed by archived notes.
+- `timers` - the full list of timers.
 
-## Ошибка API
+## API Error
 
 ```json
 {

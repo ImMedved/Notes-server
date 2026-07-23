@@ -50,8 +50,8 @@ Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8080/health
 
 ## Docs
 
-- [Architecture](../docs/architecture.md)
-- [Deployment](../docs/deployment.md)
-- [API contract](../docs/contracts/api.md)
-- [Models](../docs/contracts/models.md)
-- [Android client notes](../docs/android-client.md)
+- [Architecture](docs/architecture.md)
+- [Deployment](docs/deployment.md)
+- [API contract](docs/contracts/api.md)
+- [Models](docs/contracts/models.md)
+- [Android client notes](docs/android-client.md)
